@@ -12,10 +12,11 @@ for (i in 1:numSamples){
     denominator <- leftSide[i,j] + rightSide[i,j]
     value <- numerator/denominator
     vector <- append(vector, value)
+  
   }
   vsum <- vector()
   vsum <-append(vsum, sub(".*sepLabel_", "", means[i,1]))
-  vsum <-append(vsum, sum(vector[2:numPairs]))
+  vsum <-append(vsum, sum(abs(vector)))
   list[[i]] <-vsum
 }
 library(gplots)
@@ -28,4 +29,11 @@ dataFrame <- dataFrame[sort(abs(dataFrame$Value),decreasing=F,index.return=T)[[2
 #lhei=c(0.1,5) #make row of key and other dendrogram very small and other row big. 
 #heatmap.2(cbind(dataFrame$Value, dataFrame$Value), trace="n", Colv = NA, 
  #          dendrogram = "row", labCol = "", labRow = dataFrame$Name, cexRow = 0.75, lwid = lwid, lhei = lhei)
-head(dataFrame, n =33)
+#heatmap.2(cbind(dataFrame$Value, dataFrame$Value), trace="n", Colv = NA, 
+#          dendrogram = "row", labCol = "", labRow = dataFrame$Name, cexRow = 0.75, lwid = lwid, lhei = lhei)
+df_merge <- merge(dataFrame1,dataFrame,by="Name")
+df_merge$Top10IL <- ifelse(df_merge$Value.y >= quantile(df_merge$Value.y, probs = 0.9), TRUE, FALSE)
+df_merge$Top10STD <- ifelse(df_merge$Value.x >= quantile(df_merge$Value.x, probs = 0.9), TRUE, FALSE)
+both_good <-subset(df_merge, subset=(Top10STD==TRUE&Top10IL==TRUE))
+
+
