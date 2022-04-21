@@ -56,8 +56,16 @@ dataFrame1 <- dataFrame1[sort(abs(dataFrame1$Value),decreasing=F,index.return=T)
 #heatmap.2(cbind(dataFrame$Value, dataFrame$Value), trace="n", Colv = NA, 
 #          dendrogram = "row", labCol = "", labRow = dataFrame$Name, cexRow = 0.75, lwid = lwid, lhei = lhei)
 df_merge <- merge(dataFrame1,dataFrame,by="Name")
-df_merge$Top10IL <- ifelse(df_merge$Value.y >= quantile(df_merge$Value.y, probs = 0.9), TRUE, FALSE)
-df_merge$Top10STD <- ifelse(df_merge$Value.x >= quantile(df_merge$Value.x, probs = 0.9), TRUE, FALSE)
-both_good <-subset(df_merge, subset=(Top10STD==TRUE&Top10IL==TRUE))
-
-
+both_good <- df_merge
+lowSTD <- df_merge
+lowIL <- df_merge
+pctlSTD <- quantile(df_merge$Value.x,probs = .35)
+pctlSTD1 <- quantile(df_merge$Value.x,probs = .07)
+both_good <- both_good[both_good$Value.x<pctlSTD,]
+lowSTD <-lowSTD[lowSTD$Value.x < pctlSTD1,]
+pctlIL <- quantile(x = df_merge$Value.y,probs = .35)
+pctlIL1 <- quantile(df_merge$Value.y,probs = .07)
+both_good <- both_good[both_good$Value.y<pctlIL,]
+lowIL <- lowIL[lowIL$Value.y< pctlIL1,]
+good_overall <- rbind(both_good, lowIL,lowSTD)
+good_overall <- good_overall[sort(good_overall$Name,decreasing=F,index.return=T)[[2]],]
