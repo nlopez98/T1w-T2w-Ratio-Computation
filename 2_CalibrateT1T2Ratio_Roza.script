@@ -1,0 +1,157 @@
+#!/bin/tcsh -f
+set nonomatch
+
+#set DATADIR = /nas/longleaf/home/jyhh
+set DATADIR = /pine/scr/j/y/jyhh
+set PROJDIR = /proj/NIRAL/tools
+#set DATADIR = /ASD/Autism2/IBIS1/IBIS/Proc_Data
+#set PROCDIR = /ASD/Autism2/IBIS1/IBIS/processing_VSA/sMRI
+
+set ImageMathCmd = /proj/NIRAL/tools/ImageMath
+
+
+set AllT1T2RatioRawCases = (/pine/scr/j/y/jyhh/T1T2_longleaf/002b/sMRI/Proc_v1.0/BFC/T1T2RATIO/NO_MASK_NO_WEIGHT/targetT1T2ratioRaw*.nrrd)
+
+#set templateT2    = /NIRAL/tools/atlas/BrainROIAtlas/adult_MNI_T1T2Ratio/mni_icbm152_t2_tal_nlin_sym_09a.nrrd
+#set templateT1T2R = /ASD/Autism/IBIS/atlases/T1T2RatioAtlases/VSA/T1T2RatioAtlas.nrrd  #after BFC 
+#set EyeMuscleTemplate = /ASD/Autism/IBIS/atlases/T1T2RatioAtlases/VSA/EyeMuscleMask.nii.gz
+
+set EyeValue = 10
+set MuscleValue = 500
+set EyeLabel = 1
+set MuscleLabel = 2 
+
+set MinVal = 0
+set MaxVal = 4000  #raw images
+
+foreach RawRatioCase ($AllT1T2RatioRawCases)
+
+    set brainmask = /pine/scr/j/y/jyhh/masks/002b_BrainMask.nrrd
+    #set T2w = $RawRatioCase:h/*_VSA_T2w.nrrd
+    #set T1w = $RawRatioCase:h/*_VSA_T1w.nrrd
+
+   # if (! -e $brainmask) then 
+#	echo no brainmask for $RawRatioCase
+#	continue
+ #   endif
+  #  if (! -e $T2w) then 
+#	echo no T2 -how/really- for $RawRatioCase
+#	continue
+ #   endif
+
+    set caseID      = $RawRatioCase:h:h:h:h:h:h:t
+    set ratioDir    = $RawRatioCase:h
+    set processDir  = /pine/scr/j/y/jyhh/T1T2_longleaf/002b/sMRI/Proc_v1.0/
+    set T1T2ratio   = $RawRatioCase:s/Raw/_calib_sepLabel/
+	echo $T1T2ratio
+    set T1T2ratioMasked = $T1T2ratio:r_strip.nrrd
+    #set T1T2ratioFGMasked = $T1T2ratio:r_FGstrip.nrrd
+    #set Seg         = $RawRatioCase:h/MultiSeg_SAv1.0_*/MultiSegOutput/6.AntsJointFusionExecution/*TissueSeg_fusion_output.nrrd
+    #set Subcort     = $RawRatioCase:h/MultiSeg_SAv1.0_*/MultiSegOutput/6.AntsJointFusionExecution/*SubCort_fusion_output.nrrd
+
+    #set T1T2AtlasCoreg  = $processDir/$RawRatioCase:t:s/T1T2Ratio_raw/regT1T2RAtlas/
+    #set OtsuMask      = $processDir/$RawRatioCase:t:s/T1T2Ratio_raw/Otsu/
+    #set FGMask        = $processDir/$RawRatioCase:t:s/T1T2Ratio_raw/FG/
+    set EyeMuscleSeg   = /pine/scr/j/y/jyhh/masks/002b_Mask_calibration_erode.nrrd
+    #set NonBrainOtsu  = $processDir/$RawRatioCase:t:s/T1T2Ratio_raw/NonBrainOtsu/
+
+    set tmp = $processDir/tmp.nrrd
+
+    #if (! -e $ratioDir) mkdir $ratioDir
+    #if (! -e $processDir) mkdir $processDir
+
+    echo doing $caseID $RawRatioCase
+
+    # first coregister brainmask, and propagate sMRI stuff, only Affine
+    # need to add ANTS
+#    if (! -e $T1T2AtlasCoreg ) then
+#	echo coregistering data $caseID
+#	BRAINSFit --fixedVolume $RawRatioCase --movingVolume $templateT1T2R --transformType Affine --outputTransform $T1T2AtlasCoreg:r_transform.txt --initializeTransformMode useGeometryAlign
+#	ANTS 3 -m "CC[$RawRatioCase,$templateT1T2R,1,3]" -o $T1T2AtlasCoreg:r -i 100x20x10 -t 'SyN[0.25]' -r 'Gauss[2,0.5]' --use-Histogram-Matching --initial-affine $T1T2AtlasCoreg:r_transform.txt 
+#	ITKTransformTools  MO2Aff $T1T2AtlasCoreg:rAffine.txt $T1T2AtlasCoreg:rAffineITK.txt
+#	ResampleScalarVectorDWIVolume $templateT1T2R $T1T2AtlasCoreg -f $T1T2AtlasCoreg:rAffineITK.txt  -H $T1T2AtlasCoreg:rWarp.nii.gz  -i bs --Reference $RawRatioCase --hfieldtype displacement 
+ #   endif
+  #  if (! -e $EyeMuscleSeg) then
+#	echo resampling Eye Muscle Mask
+#	ResampleScalarVectorDWIVolume $EyeMuscleTemplate $EyeMuscleSeg -f $T1T2AtlasCoreg:rAffineITK.txt  -H $T1T2AtlasCoreg:rWarp.nii.gz -i nn --Reference $RawRatioCase --hfieldtype displacement 
+ #   endif
+
+    # create Otsu masks
+    #if (! -e $OtsuMask) then
+#	echo raw otsu Mask $OtsuMask
+#	$ImageMathCmd $T1w -otsu -outfile $OtsuMask:r_T1.nrrd 
+#	$ImageMathCmd $T2w -otsu -outfile $OtsuMask:r_T2.nrrd 
+#	$ImageMathCmd $OtsuMask:r_T2.nrrd -add $OtsuMask:r_T1.nrrd  -outfile $OtsuMask 
+ #   endif
+
+  #  if (! -e $FGMask) then
+#	echo FG otsu Mask $FGMask
+#	SegPostProcessCLP $OtsuMask $OtsuMask:r_PP.nrrd
+#	$ImageMathCmd $OtsuMask:r_PP.nrrd -dilate 4,1 -outfile $FGMask
+ #   endif
+#
+ #   if (! -e $NonBrainOtsu) then
+#	echo Otsu NonBrainTissue Mask $NonBrainOtsu
+#	$ImageMathCmd $brainmask -threshold 0,0 -outfile $tmp
+#	$ImageMathCmd $OtsuMask  -mask $tmp -outfile $tmp
+#	$ImageMathCmd $tmp -threshold 1,5 -outfile $tmp
+#	$ImageMathCmd $tmp -erode 1,1 -outfile $NonBrainOtsu
+ #   endif
+
+
+    ###########
+    # calibraction happens here
+    ###########
+
+    if (! -e $T1T2ratio) then
+	echo computing T1T2ratio smoothed
+	$ImageMathCmd  $RawRatioCase -gauss -smooth -size 1 -outfile $tmp -type float
+	$DATADIR/RescaleImageMultiClass.py $tmp $EyeMuscleSeg $T1T2ratio -l $EyeLabel $MuscleLabel -i $EyeValue $MuscleValue 
+	$PROJDIR/unu 3op clamp $MinVal $T1T2ratio $MaxVal | $PROJDIR/unu save -e gzip -f nrrd -o $T1T2ratio
+    endif
+
+    if (! -e $T1T2ratioMasked) then
+	echo computing T1T2ratioMasked
+	$ImageMathCmd  $T1T2ratio -mask $brainmask  -outfile $T1T2ratioMasked
+    endif
+
+    #if (! -e $T1T2ratioFGMasked) then
+#	echo computing T1T2ratioFGMasked
+#	$ImageMathCmd  $T1T2ratio -mask $FGMask  -outfile $T1T2ratioFGMasked
+ #   endif
+
+  #  if (! -e $T1T2ratio:r_intensitySummary.csv) then
+#	echo computing whole brain intensity stats $T1T2ratio:r_intensitySummary.csv
+#	ImageStat $T1T2ratio -label $brainmask -intensitySummary 
+#	echo computing whole brain intensity stats T1
+#	ImageStat $T1w -label $brainmask -intensitySummary -outbase $T1T2ratio:r:s/_T1T2Ratio_calib//_T1
+#	echo computing whole brain intensity stats T2
+#	ImageStat $T2w -label $brainmask -intensitySummary -outbase $T1T2ratio:r:s/_T1T2Ratio_calib//_T2
+ #   endif
+
+  #  if (! -e  $T1T2ratio:r_Tissue_stat.csv && -e $Seg) then
+#	echo computing intensity csv stats  $T1T2ratio:r_Tissue_stat.csv
+#	ImageStat $T1T2ratio -label $Seg -display -intensitySummary >! $T1T2ratio:r_Tissue_stat.csv
+ #   endif
+
+  #  if (! -e  $T1T2ratio:r_Subcort_stat.csv && -e $Subcort) then
+#	echo computing intensity csv stats  $T1T2ratio:r_Subcort_stat.csv 
+#	ImageStat $T1T2ratio -label $Subcort -display -intensitySummary >! $T1T2ratio:r_Subcort_stat.csv 
+ #   endif
+
+end
+
+#Gather stats
+#v3
+#grep -h MEAN /ASD/Autism/IBIS/Proc_Data/*/VSA/mri/registered_stx/sMRI/T1T2Ratio_v3/*calib_sepLabel_Tissue_stat.csv >! stats/AllMeans_tissue_sepLabel.csv
+#grep -h MEAN /ASD/Autism/IBIS/Proc_Data/*/VSA/mri/registered_stx/sMRI/T1T2Ratio_v3/*calib_median_Tissue_stat.csv >! stats/AllMeans_tissue_median.csv
+#grep -h MEAN /ASD/Autism/IBIS/Proc_Data/*/VSA/mri/registered_stx/sMRI/T1T2Ratio_v3/*calib_mode_Tissue_stat.csv >! stats/AllMeans_tissue_mode.csv
+
+
+#grep -h MEAN /ASD/Autism/IBIS/Proc_Data/*/VSA/mri/registered_stx/sMRI/T1T2Ratio_v3/*calib_sepLabel_Subcort_stat.csv >! stats/AllMeans_sub_sepLabel.csv
+#grep -h MEAN /ASD/Autism/IBIS/Proc_Data/*/VSA/mri/registered_stx/sMRI/T1T2Ratio_v3/*calib_median_Subcort_stat.csv >! stats/AllMeans_sub_median.csv
+#grep -h MEAN /ASD/Autism/IBIS/Proc_Data/*/VSA/mri/registered_stx/sMRI/T1T2Ratio_v3/*calib_mode_Subcort_stat.csv >! stats/AllMeans_sub_mode.csv
+
+
+
+
