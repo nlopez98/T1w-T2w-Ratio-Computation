@@ -1,0 +1,3 @@
+# T1w-T2w-Ratio-Computation
+My work at NIRAL labs, UNC. This project deals with monkey brain MRI, which have to be corrected for biases and scanner artefacts.
+First, the T1 and T2 images are registered onto an atlas and a mask, to ensure they are in the same space and to determine the area of interest. Next, Bias Fold Correction is done with an array of different settings such as B Spline distance. Following this, the image is calibrated with eye and muscle masks, before the T1w/T2w ratio is calculated by dividing pairs of T1 and T2 images. Finally, statistical analysis is done to determine the settings resulting in the lowest error.
